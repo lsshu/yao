@@ -1,5 +1,6 @@
 import json
 import asyncio
+from datetime import datetime
 from functools import wraps
 from typing import Optional, List, Union
 
@@ -133,7 +134,7 @@ def item_name_prefix(callback):
             auth = kwargs.get("auth")
             if hasattr(item, "prefix"):
                 item.prefix = item.prefix or auth.prefix
-                if hasattr(item, 'name'):
+                if hasattr(item, 'name') and item.name:
                     item.name = "%s@%s" % (item.prefix, item.name.replace("%s@" % item.prefix, ""))
                 kwargs.update({
                     "item": item
@@ -166,13 +167,21 @@ def item_owns(callback):
     return wrapper
 
 
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+
 def log_to_database(session=None, scope=None, methods=None, item=None, auth=None, **kwargs):
     prefix = item.prefix if item and hasattr(item, "prefix") and item.prefix else auth.prefix if auth else None
     if ('post' in methods and scope[:5] == ".post") or 'patch' in methods:
-
         CrudFunctionLog.init().store(
             session=session,
-            item=SchemasStoreUpdateLog(prefix=prefix, scope=scope, methods=",".join(methods), data=item, username=auth.user.username),
+            item=SchemasStoreUpdateLog(prefix=prefix, scope=scope, methods=",".join(methods), data=json.loads(json.dumps(item.dict(exclude_unset=True), cls=DateEncoder)),
+                                       username=auth.user.username),
             close=False)
 
     if 'delete' in methods:

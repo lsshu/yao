@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from pydantic import BaseModel, validator
 
@@ -60,3 +60,7 @@ class SchemaParamsApi(SchemaPrefixNames):
 
     class Config:
         orm_mode = True
+
+
+class ModelUUIDS(BaseModel):
+    uuids: List[str] = None
