@@ -44,7 +44,7 @@ class SchemaPrefix(BaseModel):
 
     @validator('owns')
     def p_owns(cls, name: str):
-        return name.split("@", 1)[1] if name else None
+        return name.split("@", 1)[1] if name and len(name.split("@", 1)) == 2 else name
 
 
 class SchemaPrefixNames(SchemaPrefix):
@@ -52,7 +52,7 @@ class SchemaPrefixNames(SchemaPrefix):
 
     @validator('name')
     def p_name(cls, name: str):
-        return name.split("@", 1)[1] if name else None
+        return name.split("@", 1)[1] if name and len(name.split("@", 1)) == 2 else name
 
 
 class SchemaParamsApi(SchemaPrefixNames):
@@ -64,3 +64,8 @@ class SchemaParamsApi(SchemaPrefixNames):
 
 class ModelUUIDS(BaseModel):
     uuids: List[str] = None
+
+
+class SchemasPrefixOwns(BaseModel):
+    prefix: Optional[str] = None  # 公司前缀
+    owns: Optional[str] = None  # 拥有

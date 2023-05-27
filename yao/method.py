@@ -6,6 +6,7 @@ import re
 import socket
 import uuid
 import zipfile
+import datetime
 
 
 def hashids_encode(ids: str, **kwargs):
@@ -447,3 +448,20 @@ def string_re_replace(content: str, str_dict: dict) -> str:
     for item, value in str_dict.items():
         content = re.sub(item, value, content)
     return content
+
+
+def get_date_of_last_month(form="%Y-%m-%d"):
+    """
+    获取上月开始结束日期
+    :param form 返回值显示格式
+    :return: str，date tuple
+    """
+    today = datetime.date.today()
+    year = today.year
+    month = today.month
+    if month == 1:
+        begin_of_last_month = datetime.date(year - 1, 12, 1).strftime(form)
+    else:
+        begin_of_last_month = datetime.date(year, month - 1, 1).strftime(form)
+    end_of_last_month = (datetime.date(year, month, 1) + datetime.timedelta(-1)).strftime(form)
+    return begin_of_last_month, end_of_last_month
