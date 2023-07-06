@@ -5,9 +5,9 @@ with open("readme.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="yao",
-    version="0.0.6",
+    version="0.0.7",
     description="Dev",
-    python_requires=">=3.9",
+    python_requires=">=3.6",
     author="Lsshu",
     author_email="admin@lsshu.cn",
     url="https://github.com/lsshu/yao",
@@ -16,7 +16,7 @@ setup(
     long_description_content_type="text/markdown",
     license="GPLv3",
     classifiers=[
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",
         "Development Status :: 3 - Alpha",
     ],

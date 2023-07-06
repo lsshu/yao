@@ -94,7 +94,7 @@ class Operation(object, metaclass=ABCMeta):
             elif len(where) == 3:
                 if where[1] == "==" or where[1] == "=" or where[1] == "eq":
                     """('content', '==', '西')"""
-                    _query = _query.filter(getattr(model_class, where[0]) == where[2])
+                    _query = _query.filter(getattr(model_class, where[0]) == (where[2] if where[2] != "_#None" else None))
                 elif where[1] == "!=" or where[1] == "<>" or where[1] == "><" or where[1] == "neq" or where[1] == "ne":
                     """('content', '!=', '西')"""
                     _query = _query.filter(getattr(model_class, where[0]) != where[2])
@@ -142,7 +142,7 @@ class Operation(object, metaclass=ABCMeta):
                 elif where[1] in ["datebetween"] and type(where[2]) in [list, tuple] and len(where[2]) == 2:
                     _query = _query.filter(getattr(getattr(model_class, where[0]), 'between')(where[2][0], where[2][1]))
                 elif where[1] in ["datetimebetween"] and type(where[2]) in [list, tuple] and len(where[2]) == 2:
-                    _query = _query.filter(getattr(getattr(model_class, where[0]), 'between')("%s 00:00:00" % where[2][0], "%s 23:59:59" % where[2][1]))
+                    _query = _query.filter(getattr(getattr(model_class, where[0]), 'between')("%s" % where[2][0], "%s 23:59:59" % where[2][1]))
                 elif where[1] in ["in"] and type(where[2]) in [list, tuple]:
                     _query = _query.filter(getattr(getattr(model_class, where[0]), "in_")(where[2]))
                 elif where[1] in ["is"]:
@@ -315,7 +315,7 @@ class Operation(object, metaclass=ABCMeta):
         return response
 
     def update(self, session, where=None, item: BaseModel = None, data: dict = None, commit: bool = True, refresh: bool = True, close: bool = False, exclude_unset=True,
-               event: bool = False, **kwargs):
+               event: bool = False, synchronize_session="evaluate", **kwargs):
         """
         更新数据
         :param session:
@@ -327,6 +327,7 @@ class Operation(object, metaclass=ABCMeta):
         :param close:
         :param exclude_unset:
         :param event:
+        :param synchronize_session:
         :param kwargs:
         :return:
         """
@@ -360,7 +361,7 @@ class Operation(object, metaclass=ABCMeta):
             # relationships
             self.__init_query(session=session)
             self.__init_params(where=where, **kwargs)
-            self.query.update(item.dict(exclude_unset=exclude_unset))
+            self.query.update(item.dict(exclude_unset=exclude_unset), synchronize_session=synchronize_session)
             commit and session.commit()
             close and session.close()
 
@@ -393,6 +394,22 @@ class Operation(object, metaclass=ABCMeta):
         refresh and session.refresh(db_item)
         close and session.close()
         return db_item
+
+    def many_store(self, session, items: List[BaseModel], commit: bool = True, close: bool = False, **kwargs):
+        """
+        批量创建模型数据
+        :param session:
+        :param items:
+        :param commit:
+        :param close:
+        :param kwargs:
+        :return:
+        """
+        db_items = [self.model_class(**item.dict(exclude_unset=True)) for item in items]
+        session.add_all(db_items)
+        commit and session.commit()
+        close and session.close()
+        return db_items
 
     def delete(self, session, commit: bool = True, close: bool = False, event: bool = False, **kwargs):
         """

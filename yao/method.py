@@ -346,7 +346,16 @@ def get_attr(object, name: str, default=None):
     """
     _name = name.split('.')
     for name in _name:
-        object = getattr(object, name, default)
+        if type(object) is dict:
+            object = object.get(name, default)
+        else:
+            object = getattr(object, name, default)
+    if object is None:
+        object = ""
+    if object is True:
+        object = 1
+    if object is False:
+        object = 0
     return object
 
 
@@ -363,10 +372,7 @@ def export_file(sheet_name: str, export_name: str, col_items: dict, db_list: lis
     for db_obj in db_list:
         _list = []
         for key in col_items:
-            if type(db_obj) is dict:
-                _list.append(db_obj.get(key, ""))
-            else:
-                _list.append(get_attr(db_obj, key, ""))
+            _list.append(get_attr(db_obj, key, ""))
         ws.append(_list)
 
     if not os.path.exists(os.path.dirname(export_name)):
@@ -382,14 +388,13 @@ def export_files(export_name: str, sheet_data: list):
     wb = Workbook()
     for key, sheet in enumerate(sheet_data):
         ws = wb.create_sheet(sheet.get("sheet_name"), key)
-        ws.append([datum for datum in sheet.get("col_items", {}).values()])
+        header_label = sheet.get("col_items", {})
+        if sheet.get("is_label", True):
+            ws.append([datum for datum in header_label.values()])
         for db_obj in sheet.get("db_list", []):
             _list = []
-            for key in sheet.get("col_items", {}):
-                if type(db_obj) is dict:
-                    _list.append(db_obj.get(key, ""))
-                else:
-                    _list.append(get_attr(db_obj, key, ""))
+            for key in header_label.keys():
+                _list.append(get_attr(db_obj, key, ""))
             ws.append(_list)
 
         if not os.path.exists(os.path.dirname(export_name)):
