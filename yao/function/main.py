@@ -7,6 +7,7 @@ from yao.function.appointment.main import router as appointment
 from yao.function.department.main import router as department
 from yao.function.annex.main import router as annex
 from yao.function.log.main import router as log
+from yao.function.queue.main import router as queue
 
 router = APIRouter()
 router.include_router(company)
@@ -16,3 +17,4 @@ router.include_router(appointment)
 router.include_router(department)
 router.include_router(annex)
 router.include_router(log)
+router.include_router(queue)

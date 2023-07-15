@@ -431,13 +431,14 @@ class Operation(object, metaclass=ABCMeta):
         close and session.close()
         return response
 
-    def update_or_store_model(self, session, where=None, item: BaseModel = None, data: dict = None, commit: bool = True, refresh: bool = True, close: bool = False,
-                              exclude_unset: bool = True, event: bool = False, update_event: bool = False, **kwargs):
+    def update_or_store_model(self, session, where=None, item: BaseModel = None, store_item: BaseModel = None, data: dict = None, commit: bool = True, refresh: bool = True,
+                              close: bool = False, exclude_unset: bool = True, event: bool = False, update_event: bool = False, **kwargs):
         """
         更新或者创建
         :param session:
         :param where:
         :param item:
+        :param store_item:
         :param data:
         :param commit:
         :param refresh:
@@ -453,7 +454,7 @@ class Operation(object, metaclass=ABCMeta):
             return self.update(session=session, item=item, data=data, pk=getattr(instance, self.model_pk), exclude_unset=exclude_unset, commit=commit, refresh=refresh, close=close,
                                event=update_event, **kwargs)
         else:
-            return self.store(session=session, item=item, data=data, commit=commit, refresh=refresh, close=close, event=event, **kwargs)
+            return self.store(session=session, item=store_item if store_item else item, data=data, commit=commit, refresh=refresh, close=close, event=event, **kwargs)
 
     def find_or_store_model(self, session, where=None, item: BaseModel = None, data: dict = None, commit: bool = True, refresh: bool = True, close: bool = False, **kwargs):
         """

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Text, Integer, ForeignKey, event, Table, JSON
+from sqlalchemy import Column, String, Boolean, Text, Integer, ForeignKey, event, Table, JSON, TIMESTAMP
 from sqlalchemy.orm import relationship, declared_attr
 from sqlalchemy_mptt.mixins import BaseNestedSets
 
@@ -38,6 +38,10 @@ function_annex_table_name = function_annex_name.replace('.', '_')
 function_log_name = plural("%s.log" % name)
 function_log_table_name = function_log_name.replace('.', '_')
 
+"""队列"""
+function_queue_name = plural("%s.queue" % name)
+function_queue_table_name = function_queue_name.replace('.', '_')
+
 SYSTEM_PERMISSIONS = [
     {
         "name": "职能信息",
@@ -52,6 +56,7 @@ SYSTEM_PERMISSIONS = [
             {"name": "后台账号", "scope": function_user_name, "icon": "User"},
             {"name": "附件文件", "scope": function_annex_name, "icon": "Folder", "is_menu": False},
             {"name": "操作日志", "scope": function_log_name, "icon": "Document"},
+            {"name": "后台队列", "scope": function_queue_name, "icon": "Finished"},
         ]
     }
 ]
@@ -172,3 +177,19 @@ class ModelFunctionLogs(BaseCompanyModel):
     methods = Column(String(32), nullable=True, comment="methods", index=True)
     data = Column(JSON, nullable=True, comment="Data")
     username = Column(String(32), ForeignKey("%s.username" % function_user_table_name, onupdate="CASCADE", ondelete="CASCADE"), index=True, nullable=True, comment="用户")
+
+
+class ModelFunctionQueues(BaseCompanyModel):
+    """队列"""
+    __tablename__ = function_queue_table_name
+    username = Column(String(32), ForeignKey("%s.username" % function_user_table_name, onupdate="CASCADE", ondelete="CASCADE"), index=True, nullable=True, comment="用户")
+    priority = Column(Integer, nullable=True, comment="优先级 小的最高")
+    scope = Column(String(100), nullable=True, comment="scope")
+    data = Column(JSON, nullable=True, comment="Data")
+    key = Column(Text, nullable=True, comment="去重Key")
+    start_at = Column(TIMESTAMP, nullable=True, comment="开始时间")
+    stop_at = Column(TIMESTAMP, nullable=True, comment="结束时间")
+    progress = Column(String(8), nullable=True, comment="进度条")
+    progress_text = Column(String(100), nullable=True, comment="进度条")
+    retry = Column(Integer, nullable=True, comment="重试次数")
+    queue_status = Column(Integer, nullable=True, comment="状态 0未运行 1成功 2失败")
