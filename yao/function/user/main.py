@@ -28,7 +28,7 @@ def authenticate_user(session: Session, username: str, password: str):
     :param password:
     :return:
     """
-    user = CrudFunctionUser.init().first(session=session, where=("username", username))
+    user = CrudFunctionUser.init().first(session=session, where=[("username", username), ("available", True)])
     if not user or not token_verify_password(plain_password=password, hashed_password=user.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="账号或者密码不正确！")
     return user

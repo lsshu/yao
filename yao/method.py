@@ -359,7 +359,7 @@ def get_attr(object, name: str, default=None):
     return object
 
 
-def export_file(sheet_name: str, export_name: str, col_items: dict, db_list: list):
+def export_file(sheet_name: str, export_name: str, col_items: dict, db_list: list, is_header=True):
     """
     导出文件
     """
@@ -367,13 +367,16 @@ def export_file(sheet_name: str, export_name: str, col_items: dict, db_list: lis
     wb = Workbook()
     ws = wb.active
     ws.title = sheet_name
-    ws.append([datum for datum in col_items.values()])
+    is_header and ws.append([datum for datum in col_items.values()])
     # [ws.append([str(get_attr(db_obj, key, "")) for key in col_items]) for db_obj in db_list]
     for db_obj in db_list:
-        _list = []
-        for key in col_items:
-            _list.append(get_attr(db_obj, key, ""))
-        ws.append(_list)
+        if type(db_obj) is list:
+            ws.append(db_obj)
+        else:
+            _list = []
+            for key in col_items:
+                _list.append(get_attr(db_obj, key, ""))
+            ws.append(_list)
 
     if not os.path.exists(os.path.dirname(export_name)):
         os.makedirs(os.path.dirname(export_name))
@@ -392,10 +395,13 @@ def export_files(export_name: str, sheet_data: list):
         if sheet.get("is_label", True):
             ws.append([datum for datum in header_label.values()])
         for db_obj in sheet.get("db_list", []):
-            _list = []
-            for key in header_label.keys():
-                _list.append(get_attr(db_obj, key, ""))
-            ws.append(_list)
+            if type(db_obj) is list:
+                ws.append(db_obj)
+            else:
+                _list = []
+                for key in header_label.keys():
+                    _list.append(get_attr(db_obj, key, ""))
+                ws.append(_list)
 
         if not os.path.exists(os.path.dirname(export_name)):
             os.makedirs(os.path.dirname(export_name))
