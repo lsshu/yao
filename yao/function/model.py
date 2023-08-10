@@ -121,7 +121,8 @@ class ModelFunctionAppointments(BaseCompanyModel):
     department = Column(String(40), ForeignKey('%s.name' % function_department_table_name, ondelete="CASCADE", onupdate="CASCADE"), index=True, nullable=True, comment="公司部门")
     name = Column(String(40), unique=True, nullable=False, comment="名称")
     scopes = Column(Text, nullable=False, comment="Scope")
-    permissions = relationship(ModelFunctionPermissions, backref='appointments', lazy="joined", secondary=Table(
+    #  lazy="joined"
+    permissions = relationship(ModelFunctionPermissions, backref='appointments', secondary=Table(
         "%s_appointment_has_permissions" % function_name,
         Model.metadata,
         Column('per_id', Integer, ForeignKey("%s.id" % function_permission_table_name, ondelete="CASCADE"), primary_key=True, comment="权限"),
@@ -132,10 +133,12 @@ class ModelFunctionAppointments(BaseCompanyModel):
 class ModelFunctionUsers(BaseCompanyModel, BaseNestedSets):
     """登录用户"""
     __tablename__ = function_user_table_name
+    sqlalchemy_mptt_pk_name = "uuid"
     username = Column(String(40), nullable=False, unique=True, index=True, comment="名称")
     password = Column(String(128), nullable=False, comment="密码")
     user_phone = Column(String(11), nullable=True, comment="手机")
     available = Column(Boolean, default=1, comment="是否有效")
+    children_ids = Column(JSON, nullable=True, comment="子孙ids")
 
     permissions = relationship(ModelFunctionPermissions, backref='function_users', secondary=Table(
         "%s_user_has_permissions" % function_name,

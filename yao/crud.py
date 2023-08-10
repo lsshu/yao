@@ -286,7 +286,8 @@ class Operation(object, metaclass=ABCMeta):
         import math
         total = self.count(session=session, **kwargs)
         if tree:
-            items = self.get_tree(session=session)
+            items = self.get_tree(session=session, json=False)
+            items = [item.get("node") for item in items]
         else:
             items = self.get(session=session, field=field, limit=limit, page=page, order=order, close=close, **kwargs)
         pages = math.ceil(total / self.limit) if type(total) is int and type(self.limit) is int and self.limit != 0 else 1

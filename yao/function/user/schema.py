@@ -5,7 +5,7 @@ from pydantic import BaseModel, validator
 
 from yao.schema import Schemas, SchemasPaginate
 from yao.function.permission.schema import SchemasFunctionResponse, SchemasFunctionMenuMiniResponse
-from yao.function.appointment.schema import SchemasFunctionAppointmentResponse
+from yao.function.appointment.schema import SchemasFunctionMiniAppointmentResponse
 from yao.function.company.schema import SchemasFunctionResponse as companySchemasFunctionResponse
 
 
@@ -16,10 +16,24 @@ class SchemasFunctionUserResponse(BaseModel):
     username: Optional[str] = None
     user_phone: Optional[str] = None
     permissions: Optional[List[SchemasFunctionResponse]] = None
-    appointments: Optional[List[SchemasFunctionAppointmentResponse]] = None
+    appointments: Optional[List[SchemasFunctionMiniAppointmentResponse]] = None
+    children: Optional[List['SchemasFunctionUserResponse']] = None
+    children_ids: Optional[list] = None
     available: Optional[bool] = True
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+
+
+class SchemasFunctionUserMiniResponse(BaseModel):
+    """授权用户 返回"""
+    uuid: Optional[str] = None
+    prefix: Optional[str] = None
+    username: Optional[str] = None
+    user_phone: Optional[str] = None
+    available: Optional[bool] = True
 
     class Config:
         orm_mode = True
@@ -32,12 +46,14 @@ class SchemasPaginateItem(SchemasPaginate):
 class SchemasFunctionUserStoreUpdate(BaseModel):
     """创建或者更新后台账户信息"""
     prefix: Optional[str] = None
+    parent_id: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
     user_phone: Optional[str] = None
     available: Optional[bool] = True
     permissions: Optional[List[str]] = None
     appointments: Optional[List[str]] = None
+    children_ids: Optional[list] = None
 
 
 class SchemasFunctionUserSafeUpdate(BaseModel):
@@ -58,8 +74,9 @@ class SchemasFunctionUser(BaseModel):
 class SchemasFunctionScopes(BaseModel):
     """验证授权后"""
     prefix: Optional[str] = None
-    user: Optional[SchemasFunctionUserResponse] = None
+    user: Optional[SchemasFunctionUserMiniResponse] = None
     scopes: Optional[List[str]] = []
+    children_ids: Optional[list] = None
 
 
 class SchemasLogin(BaseModel):
@@ -95,8 +112,11 @@ class SchemasFunctionUserMeStatusResponse(Schemas):
     data: SchemasFunctionUserAndScopes
 
 
+
+
+
 class SchemasParams(BaseModel):
     """参数"""
-    appointments: Optional[List[SchemasFunctionAppointmentResponse]] = None
+    appointments: Optional[List[SchemasFunctionMiniAppointmentResponse]] = None
     permissions: Optional[List[SchemasFunctionMenuMiniResponse]] = None
     companies: Optional[List[companySchemasFunctionResponse]] = None

@@ -12,24 +12,28 @@ from sqlalchemy.orm import Session
 from config import OAUTH_TOKEN_URL, OAUTH_TOKEN_SCOPES, OAUTH_SECRET_KEY, OAUTH_ALGORITHM, OAUTH_LOGIN_SCOPES
 from yao.db import session
 from yao.helpers import token_payload
-from yao.schema import ModelScreenParams
+from yao.schema import ModelScreenParams, ModelScreenParamsForAll
 from yao.function.user.crud import CrudFunctionUser
 from yao.function.user.schema import SchemasFunctionUser, SchemasFunctionScopes
 from yao.function.log.crud import CrudFunctionLog
 from yao.function.log.schema import SchemasFunctionStoreUpdate as SchemasStoreUpdateLog
 
 
-# def model_screen_params(page: Optional[int] = 1, limit: Optional[int] = 25, quest_data: Optional[str] = None):
-#     """列表筛选参数"""
-#     order, where = [], []
-#     if bool(quest_data):
-#         quest_data = json.loads(quest_data) if quest_data else None
-#         [order.extend(list(s.items())) for s in quest_data['sort']] if 'sort' in quest_data else None
-#         where = [(w['key'], w['condition'], w['value']) for w in quest_data['where']] if 'where' in quest_data else None
-#     return ModelScreenParams(page=page, limit=limit, order=order, where=where)
-
-
 def model_post_screen_params(data: ModelScreenParams = None):
+    """列表筛选参数"""
+    order = []
+    [order.extend(list(s.items())) for s in data.order]
+    data.order = order
+    where = [(w['key'], w['condition'], w['value']) for w in data.where if
+             ('value' in w and (w['value'] or w['value'] is False or w['value'] == 0)) and (not "join" in w or "join" in w and not w['join'])]
+    join = [(w['join'], [(w['key'], w['condition'], w['value'])], 'join') for w in data.where if
+            ('value' in w and (w['value'] or w['value'] is False or w['value'] == 0)) and ("join" in w and w['join'])]
+    data.where = where
+    data.join = join
+    return data
+
+
+def model_post_screen_params_for_all(data: ModelScreenParamsForAll = None):
     """列表筛选参数"""
     order = []
     [order.extend(list(s.items())) for s in data.order]
@@ -51,6 +55,15 @@ def model_screen_params(page: Optional[str] = None, limit: Optional[str] = None,
                              order=json.loads(order).get('value') if order else [])
 
     return model_post_screen_params(data)
+
+
+def model_screen_params_for_all(where: Optional[str] = None, join: Optional[str] = None,
+                                order: Optional[str] = None):
+    """列表筛选参数"""
+    data = ModelScreenParamsForAll(where=json.loads(where).get('value') if where else [], join=json.loads(join).get('value') if join else [],
+                                   order=json.loads(order).get('value') if order else [])
+
+    return model_post_screen_params_for_all(data)
 
 
 class OAuth2PasswordBearerOrForm(OAuth2PasswordBearer):
@@ -95,7 +108,7 @@ async def auth_user(auth: SchemasFunctionUser = Security(current_user_security, 
     :return:
     """
     user = CrudFunctionUser.init().first(session=session, pk=auth.user_id)
-    return SchemasFunctionScopes(user=user, prefix=auth.prefix, scopes=auth.scopes)
+    return SchemasFunctionScopes(user=user, prefix=auth.prefix, scopes=auth.scopes, children_ids=user.children_ids)
 
 
 def item_prefix(callback):

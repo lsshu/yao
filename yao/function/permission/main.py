@@ -44,7 +44,7 @@ async def post_models(session: Session = Depends(_session), params: ModelScreenP
 
 
 @router.get('/{}.params'.format(name), name="get {}".format(name))
-async def model_classs(session: Session = Depends(_session), auth: SchemasFunctionScopes = Security(auth_user, scopes=permission_scopes + ["%s.list" % name])):
+async def params_models(session: Session = Depends(_session), auth: SchemasFunctionScopes = Security(auth_user, scopes=permission_scopes + ["%s.list" % name])):
     """
     :param session:
     :param auth:

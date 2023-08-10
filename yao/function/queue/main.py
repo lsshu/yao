@@ -91,6 +91,12 @@ async def update_patch_model(uuid: str, item: SchemasStoreUpdate, session: Sessi
     db_model = Crud.init().first(session=session, uuid=uuid)
     if db_model is None:
         return SchemasError(message="数据没有找到！")
+    if item.queue_status == 0:
+        item.start_at = None
+        item.stop_at = None
+        item.progress = None
+        item.progress_text = None
+        item.retry = 0
     Crud.init().update(session=session, uuid=uuid, item=item, event=True, exclude_unset=True)
     return Schemas()
 

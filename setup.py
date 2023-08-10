@@ -5,7 +5,7 @@ with open("readme.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="yao",
-    version="0.0.9",
+    version="0.1.0",
     description="Dev",
     python_requires=">=3.6",
     author="Lsshu",
@@ -21,18 +21,18 @@ setup(
         "Development Status :: 3 - Alpha",
     ],
     install_requires=[
-        "fastapi[all]",
+        "fastapi[all]==0.83.0",
         "python-jose[cryptography]",
         "passlib[bcrypt]",
         "SQLAlchemy==1.4.46",
         "Pillow",
-        "pymysql",
-        "sqlalchemy-mptt",
-        "user-agents",
+        "PyMySQL==1.0.2",
+        "sqlalchemy-mptt==0.2.5",
+        "user-agents==2.2.0",
         "requests",
         "openpyxl",
         "aioredis",
-        "filetype",
+        "filetype==1.2.0",
         "pycryptodome",
     ]
 )

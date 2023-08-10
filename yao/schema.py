@@ -39,6 +39,13 @@ class ModelScreenParams(BaseModel):
     order: Optional[list] = []
 
 
+class ModelScreenParamsForAll(BaseModel):
+    """获取列表默认参数 不带分页"""
+    where: Optional[Union[dict, list]] = []
+    join: Optional[Union[dict, list]] = []
+    order: Optional[list] = []
+
+
 class SchemaPrefix(BaseModel):
     owns: Optional[str] = None
 

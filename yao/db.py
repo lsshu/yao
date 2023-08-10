@@ -58,8 +58,8 @@ class Model(BaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     uuid = Column(String(32), unique=True, nullable=False, default=lambda: uuid.uuid4().hex, comment="UUID")
     deleted_at = Column(TIMESTAMP, index=True, nullable=True, comment="删除日期")
-    created_at = Column(TIMESTAMP, nullable=True, default=datetime.now, comment="创建日期")
-    updated_at = Column(TIMESTAMP, nullable=True, default=datetime.now, onupdate=datetime.now, comment="更新日期")
+    created_at = Column(TIMESTAMP, index=True, nullable=True, default=datetime.now, comment="创建日期")
+    updated_at = Column(TIMESTAMP, index=True, nullable=True, default=datetime.now, onupdate=datetime.now, comment="更新日期")
 
     def to_dict(self):
         """

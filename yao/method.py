@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import json
 import os
 import random
 import re
@@ -356,6 +357,8 @@ def get_attr(object, name: str, default=None):
         object = 1
     if object is False:
         object = 0
+    if type(object) is dict:
+        object = json.dumps(object)
     return object
 
 
