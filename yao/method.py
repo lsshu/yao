@@ -362,7 +362,7 @@ def get_attr(object, name: str, default=None):
     return object
 
 
-def export_file(sheet_name: str, export_name: str, col_items: dict, db_list: list, is_header=True):
+def export_file(sheet_name: str, export_name: str, col_items: dict = {}, db_list: list = [], is_header=True):
     """
     导出文件
     """

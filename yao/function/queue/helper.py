@@ -37,7 +37,7 @@ def add_queue_function(module, name, data=None, auth: SchemasFunctionScopes = No
             scope=scope, data=data, key=unique_key, queue_status=0, retry=0
         )
         if unique_key:
-            QueueCrud.init().find_or_store_model(session=session, where=[("key", unique_key), ("queue_status", "in", [0])], item=item, close=True)
+            QueueCrud.init().find_or_store_model(session=session, where=[("key", unique_key), ("queue_status", "in", [0, 3])], item=item, close=True)
         else:
             QueueCrud.init().store(session=session, item=item, close=True)
         return True
@@ -140,9 +140,10 @@ def progress_queue(uuid, progress=None, progress_text=None):
     :return:
     """
     try:
-        session = next(_session())
-        QueueCrud.init().update(session=session, uuid=uuid, item=QueueSchemasStoreUpdate(progress=progress, progress_text=progress_text), event=True, exclude_unset=True)
-        session.close()
+        if uuid:
+            session = next(_session())
+            QueueCrud.init().update(session=session, uuid=uuid, item=QueueSchemasStoreUpdate(progress=progress, progress_text=progress_text), event=True, exclude_unset=True)
+            session.close()
     except:
         pass
 

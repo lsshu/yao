@@ -20,6 +20,10 @@ class SchemasFunctionResponse(BaseModel):
     updated_at: Optional[datetime] = None
     children: Optional[List['SchemasFunctionResponse']] = None
 
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
+
     class Config:
         orm_mode = True
 
@@ -37,6 +41,10 @@ class SchemasFunctionStoreUpdate(BaseModel):
     parent_id: Optional[str] = None
     is_menu: Optional[bool] = True
     is_action: Optional[bool] = True
+
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
 
 class SchemasFunctionMiniResponse(BaseModel):

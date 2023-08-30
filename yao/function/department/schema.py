@@ -10,6 +10,9 @@ class SchemasFunctionResponse(SchemaPrefixNames):
     uuid: Optional[str] = None
     parent_uuid: Optional[str] = None
     name: Optional[str] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -30,6 +33,9 @@ class SchemasFunctionStoreUpdate(BaseModel):
     prefix: Optional[str] = None
     parent_id: Optional[str] = None
     name: Optional[str] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
 
 class SchemasParams(BaseModel):

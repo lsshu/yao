@@ -123,7 +123,7 @@ class ModelFunctionAppointments(BaseCompanyModel):
     scopes = Column(Text, nullable=False, comment="Scope")
     #  lazy="joined"
     permissions = relationship(ModelFunctionPermissions, backref='appointments', secondary=Table(
-        "%s_appointment_has_permissions" % function_name,
+        "%s_appointment_has_permissions" % function_name.replace('.', '_'),
         Model.metadata,
         Column('per_id', Integer, ForeignKey("%s.id" % function_permission_table_name, ondelete="CASCADE"), primary_key=True, comment="权限"),
         Column('app_id', Integer, ForeignKey("%s.id" % function_appointment_table_name, ondelete="CASCADE"), primary_key=True, comment="职位")
@@ -134,20 +134,20 @@ class ModelFunctionUsers(BaseCompanyModel, BaseNestedSets):
     """登录用户"""
     __tablename__ = function_user_table_name
     sqlalchemy_mptt_pk_name = "uuid"
-    username = Column(String(40), nullable=False, unique=True, index=True, comment="名称")
+    username = Column(String(40), nullable=False, unique=True, comment="名称")
     password = Column(String(128), nullable=False, comment="密码")
     user_phone = Column(String(11), nullable=True, comment="手机")
     available = Column(Boolean, default=1, comment="是否有效")
     children_ids = Column(JSON, nullable=True, comment="子孙ids")
 
     permissions = relationship(ModelFunctionPermissions, backref='function_users', secondary=Table(
-        "%s_user_has_permissions" % function_name,
+        "%s_user_has_permissions" % function_name.replace('.', '_'),
         Model.metadata,
         Column('per_id', Integer, ForeignKey("%s.id" % function_permission_table_name, ondelete="CASCADE"), primary_key=True, comment="权限"),
         Column('use_id', Integer, ForeignKey("%s.id" % function_user_table_name, ondelete="CASCADE"), primary_key=True, comment="用户"),
     ))
     appointments = relationship(ModelFunctionAppointments, backref='function_users', secondary=Table(
-        "%s_user_has_appointments" % function_name,
+        "%s_user_has_appointments" % function_name.replace('.', '_'),
         Model.metadata,
         Column('app_id', Integer, ForeignKey("%s.id" % function_appointment_table_name, ondelete="CASCADE"), primary_key=True, comment="职位"),
         Column('use_id', Integer, ForeignKey("%s.id" % function_user_table_name, ondelete="CASCADE"), primary_key=True, comment="用户"),

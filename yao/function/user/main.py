@@ -118,9 +118,9 @@ async def get_models(session: Session = Depends(_session), params: ModelScreenPa
     - **:return**:
     """
     if auth.user.username and auth.user.username.split("@")[0] == DEFAULT_FUNCTION_COMPANY.get("prefix_name") and auth.user.username.split("@")[1] in OAUTH_ADMIN_USERS:
-        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[("parent_id", None)], screen_params=params)
+        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[("parent_id", None) if len(params.where) == 0 else None], screen_params=params)
     else:
-        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[('prefix', auth.prefix), ("parent_id", None)], screen_params=params)
+        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[('prefix', auth.prefix), ("parent_id", None) if len(params.where) == 0 else None], screen_params=params)
     return Schemas(data=SchemasPaginateItem(**db_model_list))
 
 

@@ -23,6 +23,10 @@ class SchemasFunctionUserResponse(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
+
     class Config:
         orm_mode = True
 
@@ -34,6 +38,10 @@ class SchemasFunctionUserMiniResponse(BaseModel):
     username: Optional[str] = None
     user_phone: Optional[str] = None
     available: Optional[bool] = True
+
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
     class Config:
         orm_mode = True

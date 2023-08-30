@@ -11,6 +11,9 @@ class SchemasFunctionAppointmentResponse(SchemaPrefixNames):
     uuid: Optional[str] = None
     name: Optional[str] = None
     permissions: Optional[List[SchemasFunctionMiniResponse]] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -35,6 +38,9 @@ class SchemasFunctionAppointmentStoreUpdate(BaseModel):
     name: Optional[str] = None
     scopes: Optional[str] = None
     permissions: Optional[List[str]] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
 
 class SchemasParams(BaseModel):

@@ -11,6 +11,9 @@ class SchemasFunctionAnnexeResponse(SchemaPrefixNames):
     path: Optional[str] = None
     preview_path: Optional[str] = None
     size: Optional[int] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
     class Config:
         orm_mode = True
@@ -30,6 +33,9 @@ class SchemasFunctionAnnexeStoreUpdate(BaseModel):
     size: Optional[int] = None
     width: Optional[int] = None
     height: Optional[int] = None
+    remarks: Optional[str] = None  # 备注
+    sort: Optional[int] = None  # 排序
+    status: Optional[bool] = None  # 状态
 
 
 class SchemasParams(BaseModel):
