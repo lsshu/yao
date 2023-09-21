@@ -148,5 +148,5 @@ def progress_queue(uuid, progress=None, progress_text=None):
         pass
 
 
-if __name__ == '__main__':
-    digestion_queue()
+# if __name__ == '__main__':
+#     digestion_queue()

@@ -139,6 +139,7 @@ class ModelFunctionUsers(BaseCompanyModel, BaseNestedSets):
     user_phone = Column(String(11), nullable=True, comment="手机")
     available = Column(Boolean, default=1, comment="是否有效")
     children_ids = Column(JSON, nullable=True, comment="子孙ids")
+    auth_data = Column(JSON, nullable=True, comment="授权数据")
 
     permissions = relationship(ModelFunctionPermissions, backref='function_users', secondary=Table(
         "%s_user_has_permissions" % function_name.replace('.', '_'),

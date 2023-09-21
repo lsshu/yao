@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Security, HTTPException, status
+from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -13,7 +14,7 @@ from yao.schema import Schemas, SchemasError, ModelScreenParams
 from yao.function.model import function_user_name as name
 from yao.function.user.crud import CrudFunctionUser
 from yao.function.user.schema import SchemasFunctionScopes, SchemasLoginResponse, SchemasLogin, SchemasFunctionUserMeStatusResponse, SchemasPaginateItem, SchemasParams, \
-    SchemasFunctionUserResponse, SchemasFunctionUserStoreUpdate, SchemasFunctionUserSafeUpdate
+    SchemasFunctionUserResponse, SchemasFunctionUserStoreUpdate, SchemasFunctionUserSafeUpdate, SchemasBindAuth
 
 router = APIRouter(tags=[name.replace('.', ' ').title()])
 
@@ -120,7 +121,8 @@ async def get_models(session: Session = Depends(_session), params: ModelScreenPa
     if auth.user.username and auth.user.username.split("@")[0] == DEFAULT_FUNCTION_COMPANY.get("prefix_name") and auth.user.username.split("@")[1] in OAUTH_ADMIN_USERS:
         db_model_list = CrudFunctionUser.init().paginate(session=session, where=[("parent_id", None) if len(params.where) == 0 else None], screen_params=params)
     else:
-        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[('prefix', auth.prefix), ("parent_id", None) if len(params.where) == 0 else None], screen_params=params)
+        db_model_list = CrudFunctionUser.init().paginate(session=session, where=[('prefix', auth.prefix), ("parent_id", None) if len(params.where) == 0 else None],
+                                                         screen_params=params)
     return Schemas(data=SchemasPaginateItem(**db_model_list))
 
 
@@ -155,8 +157,9 @@ async def params_models(session: Session = Depends(_session), auth: SchemasFunct
             "companies": CrudFunctionCompany.init().get(session=session)
         }
     else:
+        has_appointment_uuids = [appointment.uuid for appointment in auth.user.appointments]
         data = {
-            "appointments": CrudFunctionAppointment.init().get(session=session, where=[("prefix", auth.prefix)]),
+            "appointments": CrudFunctionAppointment.init().get(session=session, where=[("__or", [("prefix", auth.prefix), ("uuid", "in", has_appointment_uuids)])]),
             "permissions": CrudFunctionPermission.init().get_tree(session=session, where=[("scope", "in", auth.scopes)], json=True)
         }
     return Schemas(data=SchemasParams(**data))
@@ -257,3 +260,111 @@ async def delete_models(pks: List[int], session: Session = Depends(_session),
     """
     bool_model = CrudFunctionUser.init(session=session).delete(pks=pks)
     return Schemas(data=bool_model)
+
+
+@router.post('/{}.bind.auth'.format(name), name="post {}".format(name))
+async def bind_auth(item: SchemasBindAuth, session: Session = Depends(_session)):
+    """
+    :param item:
+    :param session
+    :return:
+    """
+    try:
+        from config import PROGRAMAPPID, PROGRAMAPPSECRET
+    except:
+        return SchemasError(data="配置出错！")
+    from yao.wxamp.base import AMP
+    try:
+        amp = AMP(PROGRAMAPPID, PROGRAMAPPSECRET)
+        res = amp.code2session(item.code)
+        openid = res.get("openid", None)
+        if item.scene and openid:
+            db_model = CrudFunctionUser.init().first(session=session, uuid=item.scene)
+            auth_data = db_model.auth_data if db_model and type(db_model.auth_data) is dict else {}
+            auth_data.update({
+                item.type: {"openid": openid}
+            })
+            _item = SchemasFunctionUserStoreUpdate(auth_data=auth_data)
+            CrudFunctionUser.init().update(session=session, uuid=item.scene, item=_item, exclude_unset=True, event=True, close=True)
+            return Schemas(data="已经成功获取到授权，可以关闭当前窗口！")
+    except:
+        return SchemasError(data="授权出错！")
+
+
+@router.get('/auth/mp/{user_uuid}', name="get {}".format(name))
+async def mp_auth(user_uuid: str, session: Session = Depends(_session)):
+    """
+    :param user_uuid
+    :param session
+    :return:
+    """
+    from config import HOME_URL
+    try:
+        from config import MPAPPID, MPAPPSECRET
+    except:
+        return SchemasError(data="配置出错！")
+    from yao.wxmp.base import MP
+    try:
+        mp = MP(MPAPPID, MPAPPSECRET)
+        redirect_url = "%sapi/auth/mp_callback" % HOME_URL
+        return mp.get_or_to_auth_url(redirect_uri=redirect_url, state=user_uuid, fastapi_return=True)
+    except:
+        return SchemasError(data="授权出错！")
+
+
+@router.get('/auth/mp_callback', name="get {}".format(name))
+async def callback_auth(code, state: str, session: Session = Depends(_session)):
+    """
+    :param code
+    :param state user_uuid
+    :param session
+    :return:
+    """
+    try:
+        from config import MPAPPID, MPAPPSECRET
+    except:
+        return SchemasError(data="配置出错！")
+    from yao.wxmp.base import MP
+    try:
+        mp = MP(MPAPPID, MPAPPSECRET)
+        res = mp.code_to_openid(code=code)
+        openid = res.get("openid", None)
+
+        if state and openid:
+            db_model = CrudFunctionUser.init().first(session=session, uuid=state)
+            auth_data = db_model.auth_data if db_model and type(db_model.auth_data) is dict else {}
+            auth_data.update({
+                "mp": {"openid": openid}
+            })
+            _item = SchemasFunctionUserStoreUpdate(auth_data=auth_data)
+            CrudFunctionUser.init().update(session=session, uuid=state, item=_item, exclude_unset=True, close=True)
+            content = """
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                        <title>授权成功!</title>
+                    </head>
+                    <body>
+                    <h1 style="text-align: center;margin:100px auto;width:100%;color:green">已经成功获取到授权，可以关闭当前窗口！</h1>
+                    </body>
+                    </html>
+                    """
+            return HTMLResponse(content=content, status_code=200)
+    except:
+        pass
+    content = """
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                <title>授权出错!</title>
+            </head>
+            <body>
+            <h1 style="text-align: center;margin:100px auto;width:100%;color:red">授权出错！</h1>
+            </body>
+            </html>
+            """
+    return HTMLResponse(content=content, status_code=200)

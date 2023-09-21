@@ -20,7 +20,7 @@ class SchemasFunctionAppointmentResponse(SchemaPrefixNames):
     class Config:
         orm_mode = True
 
-class SchemasFunctionMiniAppointmentResponse(BaseModel):
+class SchemasFunctionMiniAppointmentResponse(SchemaPrefixNames):
     """角色 返回"""
     uuid: Optional[str] = None
     name: Optional[str] = None

@@ -5,7 +5,7 @@ with open("readme.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="yao",
-    version="0.1.2",
+    version="0.1.3",
     description="Dev",
     python_requires=">=3.8",
     author="Lsshu",

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Union, List
 
 from pydantic import BaseModel, validator
@@ -76,3 +77,9 @@ class ModelUUIDS(BaseModel):
 class SchemasPrefixOwns(BaseModel):
     prefix: Optional[str] = None  # 公司前缀
     owns: Optional[str] = None  # 拥有
+
+
+class SchemasAt(BaseModel):
+    created_at: Optional[datetime] = None  # 创建时间
+    updated_at: Optional[datetime] = None  # 更新时间
+    deleted_at: Optional[datetime] = None  # 删除时间

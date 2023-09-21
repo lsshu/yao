@@ -77,6 +77,15 @@ class Operation(object, metaclass=ABCMeta):
         self.__init_params(**params.dict())
         return self
 
+    def __w_tool(self, model_class, where):
+        if where:
+            if len(where) == 2:
+                return getattr(model_class, where[0]) == where[1]
+            elif len(where) == 3:
+                if where[1] in ["in"] and type(where[2]) in [list, tuple]:
+                    return getattr(getattr(model_class, where[0]), "in_")(where[2])
+        return None
+
     def __filter_query(self, where: Union[list, tuple, None] = None, query=None, model=None):
         """
         过滤数据条件
@@ -90,14 +99,26 @@ class Operation(object, metaclass=ABCMeta):
         if bool(where) and (type(where) == tuple or type(where) == list):
             if len(where) == 2:
                 """('content', '西')"""
-                _query = _query.filter(getattr(model_class, where[0]) == where[1])
+                if where[0][:2] != "__":
+                    _query = _query.filter(getattr(model_class, where[0]) == where[1])
+                else:
+                    """ ("__or", [("a", b), ("c", "in", [1,2])]) """
+                    _filters = [self.__w_tool(model_class, fil) for fil in where[1]]
+                    if where[0][2:] != "or":
+                        _query = _query.filter(or_(*[f for f in _filters if f is not None]))
             elif len(where) == 3:
                 if where[1] == "==" or where[1] == "=" or where[1] == "eq":
                     """('content', '==', '西')"""
-                    _query = _query.filter(getattr(model_class, where[0]) == (where[2] if where[2] != "_#None" else None))
+                    if where[2] != "_#None":
+                        _query = _query.filter(getattr(model_class, where[0]) == where[2])
+                    else:
+                        _query = _query.filter(or_(getattr(model_class, where[0]) == None, getattr(model_class, where[0]) == ""))
                 elif where[1] == "!=" or where[1] == "<>" or where[1] == "><" or where[1] == "neq" or where[1] == "ne":
                     """('content', '!=', '西')"""
-                    _query = _query.filter(getattr(model_class, where[0]) != where[2])
+                    if where[2] != "_#None":
+                        _query = _query.filter(getattr(model_class, where[0]) != where[2])
+                    else:
+                        _query = _query.filter(or_(getattr(model_class, where[0]) != None, getattr(model_class, where[0]) != ""))
                 elif where[1] == ">" or where[1] == "gt":
                     """('content', '>', '西')"""
                     _query = _query.filter(getattr(model_class, where[0]) > where[2])
@@ -497,6 +518,37 @@ class Operation(object, metaclass=ABCMeta):
 
         return self.model_class.get_tree(session=session, json=json, json_fields=lambda node: node.to_dict() if json is True and not json_fields else json_fields,
                                          query=query_function if query_function else lambda nodes: query_fun(nodes=nodes, _where=where))
+
+    def update_children_uuids(self, **kwargs):
+        """
+        更新子级uuid
+        Args:
+            **kwargs:
+
+        Returns:
+
+        """
+        objs = self.get(**kwargs)
+        for obj in objs:
+            ids = []
+
+            def _get_id(obj):
+                _ids = [obj.get("node").uuid]
+                children = obj.get("children", [])
+                if len(children) > 0:
+                    for child in children:
+                        _ids += _get_id(child)
+                return _ids
+
+            for _obj in obj.drilldown_tree():
+                ids += _get_id(_obj)
+            obj.children_ids = ids
+        session = kwargs.get("session")
+        commit = kwargs.get("commit", True)
+        close = kwargs.get("close", True)
+        commit and session.commit()
+        close and session.close()
+        return True
 
 
 from time import time

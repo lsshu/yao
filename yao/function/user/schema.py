@@ -62,6 +62,7 @@ class SchemasFunctionUserStoreUpdate(BaseModel):
     permissions: Optional[List[str]] = None
     appointments: Optional[List[str]] = None
     children_ids: Optional[list] = None
+    auth_data: Optional[dict] = None
 
 
 class SchemasFunctionUserSafeUpdate(BaseModel):
@@ -79,10 +80,14 @@ class SchemasFunctionUser(BaseModel):
     scopes: List[str] = []
 
 
+class _SchemasFunctionUserMiniResponse(SchemasFunctionUserMiniResponse):
+    appointments: Optional[list] = None
+
+
 class SchemasFunctionScopes(BaseModel):
     """验证授权后"""
     prefix: Optional[str] = None
-    user: Optional[SchemasFunctionUserMiniResponse] = None
+    user: Optional[_SchemasFunctionUserMiniResponse] = None
     scopes: Optional[List[str]] = []
     children_ids: Optional[list] = None
 
@@ -120,11 +125,14 @@ class SchemasFunctionUserMeStatusResponse(Schemas):
     data: SchemasFunctionUserAndScopes
 
 
-
-
-
 class SchemasParams(BaseModel):
     """参数"""
     appointments: Optional[List[SchemasFunctionMiniAppointmentResponse]] = None
     permissions: Optional[List[SchemasFunctionMenuMiniResponse]] = None
     companies: Optional[List[companySchemasFunctionResponse]] = None
+
+
+class SchemasBindAuth(BaseModel):
+    type: Optional[str] = None
+    code: Optional[str] = None
+    scene: Optional[str] = None

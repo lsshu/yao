@@ -502,3 +502,31 @@ def get_date_of_last_month(form="%Y-%m-%d"):
         begin_of_last_month = datetime.date(year, month - 1, 1).strftime(form)
     end_of_last_month = (datetime.date(year, month, 1) + datetime.timedelta(-1)).strftime(form)
     return begin_of_last_month, end_of_last_month
+
+
+def get_qrcode(data, path, version=1, box_size=10, border=5, img_fill_color="black", img_back_color="white"):
+    """
+    生成二维码
+    Args:
+        data:
+        path:
+        version:
+        box_size:
+        border:
+        img_fill_color:
+        img_back_color:
+
+    Returns:
+
+    """
+    from qrcode import QRCode
+    # 创建QRCode对象
+    qr = QRCode(version=version, box_size=box_size, border=border)
+    # 设置二维码数据
+    qr.add_data(data)
+    # 填充数据并生成二维码
+    qr.make(fit=True)
+    img = qr.make_image(fill_color=img_fill_color, back_color=img_back_color)
+    # 保存二维码图片
+    img.save(path)
+    return True
