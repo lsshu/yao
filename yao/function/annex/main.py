@@ -14,7 +14,12 @@ from yao.function.model import function_annex_name as name
 from yao.function.annex.crud import CrudFunctionAnnexe
 from yao.function.annex.schema import SchemasFunctionAnnexeResponse, SchemasFunctionAnnexeStoreUpdate, SchemasUpLoadFileResponse, SchemasUpLoadContentFile
 from yao.function.user.schema import SchemasFunctionScopes
-from config import UPLOAD_DIR
+
+try:
+    from config import UPLOAD_DIR
+except:
+    UPLOAD_DIR: str = "static"
+
 from yao.method import md5_bytes, write_file
 
 router = APIRouter(tags=[name.replace('.', ' ').title()])

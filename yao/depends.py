@@ -8,8 +8,20 @@ from fastapi import Depends, Security, APIRouter, Query, Request, HTTPException,
 from fastapi.security import SecurityScopes, OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.orm import Session
+try:
+    from config import OAUTH_TOKEN_URL, OAUTH_TOKEN_SCOPES, OAUTH_SECRET_KEY, OAUTH_ALGORITHM, OAUTH_LOGIN_SCOPES
+except:
+    OAUTH_LOGIN_SCOPES: str = "login"
 
-from config import OAUTH_TOKEN_URL, OAUTH_TOKEN_SCOPES, OAUTH_SECRET_KEY, OAUTH_ALGORITHM, OAUTH_LOGIN_SCOPES
+    OAUTH_TOKEN_URI: str = "/token"
+    OAUTH_TOKEN_URL: str = "/api%s" % OAUTH_TOKEN_URI
+
+    OAUTH_TOKEN_SCOPES: dict = {
+        OAUTH_LOGIN_SCOPES: OAUTH_LOGIN_SCOPES.capitalize()
+    }
+    OAUTH_SECRET_KEY: str = "4a876f7766d1a0e9d97231089be927e38d6dea09233ad212f056b7f1a75cd41d"
+    OAUTH_ALGORITHM: str = "HS256"
+
 from yao.db import session
 from yao.helpers import token_payload
 from yao.schema import ModelScreenParams, ModelScreenParamsForAll

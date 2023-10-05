@@ -5,8 +5,30 @@ from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from config import OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES, OAUTH_LOGIN_SCOPES, DEFAULT_FUNCTION_COMPANY, OAUTH_ADMIN_USERS, OAUTH_SECRET_KEY, OAUTH_ALGORITHM, \
-    OAUTH_TOKEN_URI, OAUTH_SCOPES_URI, OAUTH_ME_URI
+try:
+    from config import OAUTH_ADMIN_USERS, DEFAULT_FUNCTION_COMPANY
+except:
+    # 默认公司
+    DEFAULT_FUNCTION_COMPANY = {
+        "name": "默认",
+        "prefix_name": "site",
+    }
+    # 超级管理员 账号:密码
+    OAUTH_ADMIN_USERS: dict = {
+        "admin": "admin@@..##%%"
+    }
+
+try:
+    from config import OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES, OAUTH_LOGIN_SCOPES, OAUTH_SECRET_KEY, OAUTH_ALGORITHM, OAUTH_TOKEN_URI, OAUTH_SCOPES_URI, OAUTH_ME_URI
+except:
+    OAUTH_LOGIN_SCOPES: str = "login"
+    OAUTH_TOKEN_URI: str = "/token"
+    OAUTH_SCOPES_URI: str = "/scopes"
+    OAUTH_ME_URI: str = "/me"
+    OAUTH_SECRET_KEY: str = "4a876f7766d1a0e9d97231089be927e38d6dea09233ad212f056b7f1a75cd41d"
+    OAUTH_ALGORITHM: str = "HS256"
+    OAUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+
 from yao.db import session as _session
 from yao.depends import model_screen_params, model_post_screen_params, auth_user
 from yao.helpers import token_access_token, token_verify_password
@@ -298,7 +320,10 @@ async def mp_auth(user_uuid: str, session: Session = Depends(_session)):
     :param session
     :return:
     """
-    from config import HOME_URL
+    try:
+        from config import HOME_URL
+    except:
+        HOME_URL: str = "/"
     try:
         from config import MPAPPID, MPAPPSECRET
     except:

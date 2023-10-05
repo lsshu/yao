@@ -3,7 +3,16 @@ from typing import Optional, Union, List
 
 from pydantic import BaseModel, validator
 
-from config import SCHEMAS_SUCCESS_CODE, SCHEMAS_SUCCESS_STATUS, SCHEMAS_SUCCESS_MESSAGE, SCHEMAS_ERROR_CODE, SCHEMAS_ERROR_STATUS, SCHEMAS_ERROR_MESSAGE
+try:
+    from config import SCHEMAS_SUCCESS_CODE, SCHEMAS_SUCCESS_STATUS, SCHEMAS_SUCCESS_MESSAGE, SCHEMAS_ERROR_CODE, SCHEMAS_ERROR_STATUS, SCHEMAS_ERROR_MESSAGE
+except:
+    # API 接口返回数据
+    SCHEMAS_SUCCESS_CODE: int = 0
+    SCHEMAS_SUCCESS_STATUS: str = 'success'
+    SCHEMAS_SUCCESS_MESSAGE: str = '数据请求成功！'
+    SCHEMAS_ERROR_CODE: int = 1
+    SCHEMAS_ERROR_STATUS: str = 'error'
+    SCHEMAS_ERROR_MESSAGE: str = '数据请求失败！'
 
 
 class Schemas(BaseModel):

@@ -11,8 +11,6 @@ from yao.function.queue.crud import Crud
 from yao.function.queue.schema import SchemasPaginateItem, SchemasParams, SchemasResponse, SchemasStoreUpdate
 from yao.function.user.schema import SchemasFunctionScopes
 
-from app.advertising.application.crud import Crud as APPLICATIONSCrud
-
 router = APIRouter(tags=[name.replace('.', ' ').title()])
 
 role_scopes = [name, ]
@@ -53,9 +51,7 @@ async def params_models(session: Session = Depends(_session), auth: SchemasFunct
     :param auth:
     :return:
     """
-    data = {
-        "applications": APPLICATIONSCrud.init().get(session=session, where=[('prefix', auth.prefix)]),
-    }
+    data = {}
     return Schemas(data=SchemasParams(**data))
 
 

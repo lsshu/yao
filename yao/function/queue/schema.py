@@ -3,9 +3,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
-from yao.schema import SchemasPaginate, SchemaPrefixNames
-from app.stats.schema import SchemasPrefixOwns
-from app.advertising.application.schema import SchemasResponse as SchemasApplicationResponse
+from yao.schema import SchemasPaginate, SchemaPrefixNames, SchemasPrefixOwns
 
 
 class SchemasResponse(SchemaPrefixNames):
@@ -57,7 +55,7 @@ class SchemasPaginateItem(SchemasPaginate):
 
 
 class SchemasParams(BaseModel):
-    applications: Optional[List[SchemasApplicationResponse]]
+    pass
 
 
 class SchemasQueueAuth(BaseModel):
