@@ -530,3 +530,21 @@ def get_qrcode(data, path, version=1, box_size=10, border=5, img_fill_color="bla
     # 保存二维码图片
     img.save(path)
     return True
+
+
+def clean_icode(text, restr=''):
+    """
+    过滤表情
+    Args:
+        text:
+        restr:
+
+    Returns:
+
+    """
+    try:
+        # co = re.compile(u'['u'\U0001F300-\U0001F64F' u'\U0001F680-\U0001F6FF' u'\u2600-\u2B55]+')
+        co = re.compile(u'['u'\U0001F300-\U0001F64F' u'\U0001F680-\U0001F6FF' u'\u2600-\u2B55' u'\U00010000-\U0010ffff]+')
+    except re.error:
+        co = re.compile(u'('u'\ud83c[\udf00-\udfff]|'u'\ud83d[\udc00-\ude4f\ude80-\udeff]|'u'[\u2600-\u2B55])+')
+    return co.sub(restr, text)

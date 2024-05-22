@@ -1,9 +1,15 @@
+import os
 from sqlalchemy import Column, String, Boolean, Text, Integer, ForeignKey, event, Table, JSON, TIMESTAMP
 from sqlalchemy.orm import relationship, declared_attr
 from sqlalchemy_mptt.mixins import BaseNestedSets
 
 from yao.method import plural
 from yao.db import Model, Engine
+
+try:
+    from config import STATIC_URL
+except:
+    STATIC_URL = "/"
 
 name = __name__[:__name__.rfind(".")].capitalize()
 
@@ -99,8 +105,8 @@ class ModelFunctionPermissions(BaseModel, BaseNestedSets):
     sqlalchemy_mptt_pk_name = "uuid"
     name = Column(String(15), unique=True, nullable=False, comment="名称")
     icon = Column(String(20), nullable=True, comment="ICO")
-    scope = Column(String(50), nullable=False, unique=True, comment="Scope")
-    path = Column(String(50), nullable=False, comment="Path")
+    scope = Column(String(80), nullable=False, unique=True, comment="Scope")
+    path = Column(String(80), nullable=False, comment="Path")
     is_menu = Column(Boolean, default=True, comment="是否为菜单")
     is_action = Column(Boolean, default=True, comment="是否为动作权限")
 
@@ -154,6 +160,14 @@ class ModelFunctionUsers(BaseCompanyModel, BaseNestedSets):
         Column('use_id', Integer, ForeignKey("%s.id" % function_user_table_name, ondelete="CASCADE"), primary_key=True, comment="用户"),
     ))
 
+    @property
+    def auth_mp_code_path(self):
+        """
+        真实路径
+        :return:
+        """
+        return os.path.join(STATIC_URL, "api/auth/mp/code", self.uuid)
+
 
 class ModelFunctionAnnexes(BaseCompanyModel):
     """ 附件 """
@@ -169,8 +183,6 @@ class ModelFunctionAnnexes(BaseCompanyModel):
 
     @property
     def preview_path(self):
-        import os
-        from config import STATIC_URL
         return os.path.join(STATIC_URL, self.path)
 
 

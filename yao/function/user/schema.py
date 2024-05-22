@@ -19,6 +19,7 @@ class SchemasFunctionUserResponse(BaseModel):
     appointments: Optional[List[SchemasFunctionMiniAppointmentResponse]] = None
     children: Optional[List['SchemasFunctionUserResponse']] = None
     children_ids: Optional[list] = None
+    auth_mp_code_path: Optional[str] = None
     available: Optional[bool] = True
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -38,6 +39,7 @@ class SchemasFunctionUserMiniResponse(BaseModel):
     username: Optional[str] = None
     user_phone: Optional[str] = None
     available: Optional[bool] = True
+    auth_mp_code_path: Optional[str] = None
 
     remarks: Optional[str] = None  # 备注
     sort: Optional[int] = None  # 排序

@@ -54,7 +54,7 @@ async def store_model(file: UploadFile = File(...), session: Session = Depends(_
             CrudFunctionAnnexe.init().store(session=session,
                                             item=SchemasFunctionAnnexeStoreUpdate(
                                                 prefix=auth.prefix,
-                                                filename=file.filename,
+                                                filename=file.filename[:50],
                                                 content_type=file.content_type,
                                                 md5=md5, path=path, size=size, width=width, height=height))
             db_model = CrudFunctionAnnexe.init().first(session=session, where=("md5", md5))

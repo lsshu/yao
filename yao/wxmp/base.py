@@ -196,16 +196,37 @@ class MP(object):
 #
 # if __name__ == '__main__':
 #     from config import MPAPPID, MPAPPSECRET
+#     from app.stats.mp_template_config import user_copy_glance_template_id
 #
 #     mp = MP(app_id=MPAPPID, app_secret=MPAPPSECRET)
-#     print(mp.message(openid="o9vB96AmVEZCLO09jPaplvvRDlok", template_id="8BNzzuBzXd_ttcr2KHAbDEuJLyQ5IVKXYR1YiRLJ2Sk", data={
-#         "thing2": {
-#             "value": "公司高抛"
-#         },
-#         "thing3": {
-#             "value": "软件园43号楼"
-#         },
-#         "time5": {
-#             "value": "2022年12月27日 13:48:43"
-#         },
-#     }))
+#     # print(mp.message(openid="o9vB96AmVEZCLO09jPaplvvRDlok", template_id="8BNzzuBzXd_ttcr2KHAbDEuJLyQ5IVKXYR1YiRLJ2Sk", data={
+#     #     "thing2": {
+#     #         "value": "公司高抛"
+#     #     },
+#     #     "thing3": {
+#     #         "value": "软件园43号楼"
+#     #     },
+#     #     "time5": {
+#     #         "value": "2022年12月27日 13:48:43"
+#     #     },
+#     # }))
+#     # print(mp.message(openid="o9vB96AmVEZCLO09jPaplvvRDlok", template_id=user_copy_glance_template_id, data={
+#     #     "thing1": {
+#     #         "value": "复制"
+#     #     },
+#     #     "thing3": {
+#     #         "value": "林银瑶"
+#     #     },
+#     #     "phone_number2": {
+#     #         "value": "13800138000"
+#     #     },
+#     #     "time7": {
+#     #         "value": "2022年12月27日 13:48:43"
+#     #     },
+#     #     "thing3": {
+#     #         "value": "预约服务"
+#     #     },
+#     #     "thing4": {
+#     #         "value": "预约来源"
+#     #     },
+#     # }))

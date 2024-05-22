@@ -5,7 +5,7 @@ with open("readme.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="yao",
-    version="0.1.4",
+    version="0.1.5",
     description="Production",
     python_requires=">=3.8",
     author="Lsshu",
@@ -23,7 +23,8 @@ setup(
     install_requires=[
         "fastapi[all]==0.83.0",
         "python-jose[cryptography]==3.3.0",
-        "passlib[bcrypt]",
+        "passlib==1.7.4",
+        "bcrypt==4.0.1",
         "SQLAlchemy==1.4.46",
         "Pillow",
         "PyMySQL==1.0.2",

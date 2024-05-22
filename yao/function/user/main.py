@@ -1,9 +1,15 @@
+import os
+from urllib.parse import urljoin
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Security, HTTPException, status
+from fastapi.responses import FileResponse
+
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+
+from yao.method import get_qrcode
 
 try:
     from config import OAUTH_ADMIN_USERS, DEFAULT_FUNCTION_COMPANY
@@ -314,7 +320,7 @@ async def bind_auth(item: SchemasBindAuth, session: Session = Depends(_session))
 
 
 @router.get('/auth/mp/{user_uuid}', name="get {}".format(name))
-async def mp_auth(user_uuid: str, session: Session = Depends(_session)):
+async def mp_auth(user_uuid: str):
     """
     :param user_uuid
     :param session
@@ -393,3 +399,24 @@ async def callback_auth(code, state: str, session: Session = Depends(_session)):
             </html>
             """
     return HTMLResponse(content=content, status_code=200)
+
+
+@router.get('/auth/mp/code/{user_uuid}', name="get {}".format(name))
+async def mp_auth_code(user_uuid: str):
+    try:
+        from config import HOME_URL
+    except:
+        HOME_URL = "/"
+    try:
+        from config import ROOT_PATH
+    except:
+        ROOT_PATH = "/temp/"
+    try:
+        from config import UPLOAD_DIR
+    except:
+        UPLOAD_DIR = "static"
+    path = os.path.join(ROOT_PATH, UPLOAD_DIR, "runtime", ".user.auth.mp.code.png")
+    is_success = get_qrcode(data=urljoin(HOME_URL, "/api/auth/mp/%s" % user_uuid), path=path)
+    if is_success:
+        return FileResponse(path)
+    return SchemasError()
